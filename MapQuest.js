@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker } from './maps';
 import { View, StyleSheet, Text } from 'react-native';
 import { geocode, geocoderCredit } from './geocode';
 
