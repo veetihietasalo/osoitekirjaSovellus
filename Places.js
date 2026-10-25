@@ -2,22 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import { Button, Input, ListItem} from 'react-native-elements';
 import * as SQLite from 'expo-sqlite';
-import { insertAddress, fetchAddresses, deleteAddress } from './db';
+import { createTable, insertAddress, fetchAddresses, deleteAddress } from './db';
 
 const db = SQLite.openDatabase('addresses.db');
 
 export default function Places({ navigation }) {
   const [address, setAddress] = useState('');
   const [addresses, setAddresses] = useState([]);
-  const [shouldUpdate, setShouldUpdate] = useState(false);
 
+  // Create the table on a fresh install, then show what's already saved.
   useEffect(() => {
-    if (shouldUpdate) {
-      updateList();
-      setShouldUpdate(false);
-    }
-  }, [shouldUpdate]);
-  
+    createTable(db)
+      .then(updateList)
+      .catch(error => console.log("Could not create the addresses table:", error));
+  }, []);
+
   const saveAddress = async () => {
     try {
       await insertAddress(db, address);
@@ -28,10 +27,8 @@ export default function Places({ navigation }) {
   };
 
 
-  const updateList = async () => {
-    console.log("Starting to update list");
-    await fetchAddresses(db, setAddresses);
-    console.log("Updated Addresses in updateList:", addresses);
+  const updateList = () => {
+    fetchAddresses(db, setAddresses);
   };
 
   const deleteItem = (id) => {

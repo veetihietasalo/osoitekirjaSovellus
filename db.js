@@ -1,3 +1,13 @@
+export const createTable = (db) => new Promise((resolve, reject) => {
+  db.transaction(
+    tx => {
+      tx.executeSql('create table if not exists addresses (id integer primary key not null, address text not null);');
+    },
+    reject,
+    resolve
+  );
+});
+
 export const insertAddress = (db, address) => new Promise((resolve, reject) => {
   db.transaction(
     tx => {
