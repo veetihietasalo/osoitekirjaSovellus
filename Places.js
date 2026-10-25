@@ -34,7 +34,6 @@ export default function Places({ navigation }) {
   const deleteItem = (id) => {
     deleteAddress(db, id, () => updateList());
   };
-  console.log("Addresses state before rendering FlatList:", addresses);
   return (
     <View>
       <Input placeholder='Enter Address' onChangeText={text => setAddress(text)} value={address} />

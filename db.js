@@ -25,7 +25,6 @@ export const fetchAddresses = (db, setter) => {
   db.transaction(
     tx => {
       tx.executeSql('select * from addresses', [], (_, { rows }) => {
-        console.log("Data fetched from DB:", rows._array);
         setter(rows._array);
       });
     }

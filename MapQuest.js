@@ -9,7 +9,6 @@ if (!API_KEY) {
 }
 
 export default function MapQuest({ route }) {
-  console.log('Route object:', route);
   const { address } = route.params;
   const [coordinates, setCoordinates] = useState(null);
   const mapRef = useRef(null);
