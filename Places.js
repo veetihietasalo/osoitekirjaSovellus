@@ -18,8 +18,11 @@ export default function Places({ navigation }) {
   }, []);
 
   const saveAddress = async () => {
+    const trimmed = address.trim();
+    if (!trimmed) return;
     try {
-      await insertAddress(db, address);
+      await insertAddress(db, trimmed);
+      setAddress('');
       updateList();
     } catch (error) {
       console.log("Database operation failed:", error);
