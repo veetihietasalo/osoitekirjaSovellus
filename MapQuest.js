@@ -2,11 +2,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import { View, StyleSheet } from 'react-native';
 
+// Set in .env (see .env.example). Expo inlines EXPO_PUBLIC_ values into the JS bundle at build time.
+const API_KEY = process.env.EXPO_PUBLIC_MAPQUEST_KEY;
+if (!API_KEY) {
+  throw new Error('EXPO_PUBLIC_MAPQUEST_KEY is not set. Copy .env.example to .env, add a MapQuest key and restart Expo with `npx expo start --clear`.');
+}
+
 export default function MapQuest({ route }) {
   console.log('Route object:', route);
   const { address } = route.params;
   const [coordinates, setCoordinates] = useState(null);
-  const API_KEY = 'sFF5YM3snSYSbQWSvEghK1jFVKoRcfxX';
   const mapRef = useRef(null);
 
   useEffect(() => {
