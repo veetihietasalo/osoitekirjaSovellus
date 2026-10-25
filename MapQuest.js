@@ -1,47 +1,35 @@
 import React, { useEffect, useState, useRef } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { View, StyleSheet, Alert } from 'react-native';
-
-// Set in .env (see .env.example). Expo inlines EXPO_PUBLIC_ values into the JS bundle at build time.
-const API_KEY = process.env.EXPO_PUBLIC_MAPQUEST_KEY;
-if (!API_KEY) {
-  throw new Error('EXPO_PUBLIC_MAPQUEST_KEY is not set. Copy .env.example to .env, add a MapQuest key and restart Expo with `npx expo start --clear`.');
-}
+import { View, StyleSheet, Text } from 'react-native';
+import { geocode, geocoderCredit } from './geocode';
 
 export default function MapQuest({ route }) {
   const { address } = route.params;
   const [coordinates, setCoordinates] = useState(null);
+  const [message, setMessage] = useState('');
   const mapRef = useRef(null);
 
   useEffect(() => {
     const fetchCoordinates = async () => {
-      const apiUrl = `https://www.mapquestapi.com/geocoding/v1/address?key=${API_KEY}&location=${encodeURIComponent(address)}`;
       try {
-        const response = await fetch(apiUrl);
-        if (response.ok) {
-          const data = await response.json();
-          const location = data.results?.[0]?.locations?.[0];
-          if (!location) {
-            Alert.alert('Address not found', address);
-            return;
-          }
-          const { lat, lng } = location.latLng;
-          const newCoordinates = { latitude: lat, longitude: lng };
-
-          // Update state
-          setCoordinates(newCoordinates);
-
-          // Animate the map to new region
-          mapRef.current?.animateToRegion({
-            ...newCoordinates,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }, 1500); // 1500 milliseconds
-        } else {
-          console.error("Received non-OK HTTP status code:", response.status);
+        const newCoordinates = await geocode(address);
+        if (!newCoordinates) {
+          setMessage(`Address not found: ${address}`);
+          return;
         }
+
+        // Update state
+        setCoordinates(newCoordinates);
+
+        // Animate the map to new region
+        mapRef.current?.animateToRegion({
+          ...newCoordinates,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }, 1500); // 1500 milliseconds
       } catch (error) {
         console.error("An error occurred:", error);
+        setMessage('Search failed, go back and try again.');
       }
     };
 
@@ -50,6 +38,7 @@ export default function MapQuest({ route }) {
 
   return (
     <View style={styles.container}>
+      {message ? <Text style={styles.message}>{message}</Text> : null}
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -67,6 +56,7 @@ export default function MapQuest({ route }) {
           />
         )}
       </MapView>
+      <Text style={styles.credit}>{geocoderCredit}</Text>
     </View>
   );
 }
@@ -75,7 +65,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  message: {
+    color: '#b00020',
+    padding: 8,
+  },
   map: {
     flex: 1,
+  },
+  credit: {
+    fontSize: 11,
+    color: 'gray',
+    padding: 4,
+    textAlign: 'center',
   },
 });
