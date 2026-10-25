@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import { Button, Input, ListItem} from 'react-native-elements';
-import * as SQLite from 'expo-sqlite';
-import { createTable, insertAddress, fetchAddresses, deleteAddress } from './db';
+import { openDatabase, createTable, insertAddress, fetchAddresses, deleteAddress } from './db';
 
-const db = SQLite.openDatabase('addresses.db');
+const db = openDatabase();
 
 export default function Places({ navigation }) {
   const [address, setAddress] = useState('');

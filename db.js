@@ -1,3 +1,8 @@
+import * as SQLite from 'expo-sqlite';
+
+// Phone: SQLite. The web build picks up db.web.js instead, since expo-sqlite has no web support in SDK 49.
+export const openDatabase = () => SQLite.openDatabase('addresses.db');
+
 export const createTable = (db) => new Promise((resolve, reject) => {
   db.transaction(
     tx => {
