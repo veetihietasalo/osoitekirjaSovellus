@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 
 // Set in .env (see .env.example). Expo inlines EXPO_PUBLIC_ values into the JS bundle at build time.
 const API_KEY = process.env.EXPO_PUBLIC_MAPQUEST_KEY;
@@ -15,12 +15,17 @@ export default function MapQuest({ route }) {
 
   useEffect(() => {
     const fetchCoordinates = async () => {
-      const apiUrl = `https://www.mapquestapi.com/geocoding/v1/address?key=${API_KEY}&location=${address}`;
+      const apiUrl = `https://www.mapquestapi.com/geocoding/v1/address?key=${API_KEY}&location=${encodeURIComponent(address)}`;
       try {
         const response = await fetch(apiUrl);
         if (response.ok) {
           const data = await response.json();
-          const { lat, lng } = data.results[0].locations[0].latLng;
+          const location = data.results?.[0]?.locations?.[0];
+          if (!location) {
+            Alert.alert('Address not found', address);
+            return;
+          }
+          const { lat, lng } = location.latLng;
           const newCoordinates = { latitude: lat, longitude: lng };
 
           // Update state
